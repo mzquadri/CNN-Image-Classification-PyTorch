@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+env/
+.vscode/
+.idea/
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+
+# CIFAR-10 data (downloaded by torchvision)
+data/
+
+# Training logs
+training_log.txt
+
+# Model weights (large binary)
+results/best_model.pt

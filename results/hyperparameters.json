@@ -1,0 +1,15 @@
+{
+  "architecture": "Custom CNN (3 conv blocks + FC)",
+  "max_epochs": 12,
+  "batch_size": 128,
+  "learning_rate": 0.002,
+  "optimizer": "Adam",
+  "scheduler": "OneCycleLR",
+  "weight_decay": 0.0001,
+  "dropout": 0.25,
+  "augmentation": [
+    "RandomCrop(32, pad=4)",
+    "RandomHorizontalFlip",
+    "ColorJitter"
+  ]
+}
