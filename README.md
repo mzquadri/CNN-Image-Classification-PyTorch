@@ -1,6 +1,8 @@
 # CNN Image Classification with PyTorch
 
-A custom Convolutional Neural Network (CNN) built from scratch for image classification on the CIFAR-10 benchmark dataset. This project demonstrates deep learning fundamentals including CNN architecture design, data augmentation, learning rate scheduling, and comprehensive model evaluation.
+A custom Convolutional Neural Network (CNN) built from scratch for image classification on the CIFAR-10 benchmark dataset. This project demonstrates CNN architecture design, data augmentation, learning-rate scheduling, and evaluation.
+
+> **Experiment record:** The reported 64.26% test accuracy is from the tracked 15K-sample, 12-epoch reference run. Its metrics, plots, hyperparameters, and classification report are versioned; the model checkpoint is deliberately not tracked because it is a generated binary artifact.
 
 ## Project Overview
 
@@ -91,7 +93,6 @@ CNN-Image-Classification-PyTorch/
 |   |   |-- 03_per_class_accuracy.png
 |   |   |-- 04_sample_predictions.png
 |   |   |-- 05_learning_rate.png
-|   |-- best_model.pt          # Saved model weights
 |   |-- test_results.json      # Quantitative metrics
 |   |-- classification_report.txt
 |   |-- hyperparameters.json
@@ -124,6 +125,14 @@ python train.py
 
 CIFAR-10 is automatically downloaded on first run.
 
+## Reproducibility Check
+
+```bash
+python scripts/check_repository.py
+```
+
+This check verifies the source and reference-result artifacts without downloading CIFAR-10 or running training.
+
 ### Extending the Model
 
 To improve accuracy beyond 64%, consider:
@@ -154,4 +163,4 @@ To improve accuracy beyond 64%, consider:
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
