@@ -1,6 +1,8 @@
 # CNN Image Classification with PyTorch
 
-A custom Convolutional Neural Network (CNN) built from scratch for image classification on the CIFAR-10 benchmark dataset. This project demonstrates CNN architecture design, data augmentation, learning-rate scheduling, and evaluation.
+Sixty-four percent on CIFAR-10 does not sound impressive until you look at the budget: a from-scratch CNN, no pre-trained weights, 15,000 of the 50,000 training images, twelve epochs, and a laptop GPU from 2019. This project is about learning how far careful architecture design and training hygiene — batch normalization, dropout, augmentation, OneCycleLR — can take you under those constraints. The full-data, 50-epoch script is included for anyone with a bigger GPU budget.
+
+![CNN architecture](docs/diagrams/architecture.svg)
 
 > **Experiment record:** The reported 64.26% test accuracy is from the tracked 15K-sample, 12-epoch reference run. Its metrics, plots, hyperparameters, and classification report are versioned; the model checkpoint is deliberately not tracked because it is a generated binary artifact.
 
@@ -97,6 +99,7 @@ CNN-Image-Classification-PyTorch/
 |   |-- classification_report.txt
 |   |-- hyperparameters.json
 |   |-- training_history.json
+|-- docs/diagrams/             # SVG architecture diagram
 |-- requirements.txt
 |-- README.md
 ```
