@@ -16,9 +16,9 @@ class CIFAR10CNN(nn.Module):
     Custom CNN for CIFAR-10 classification.
 
     Architecture:
-        Conv Block 1: Conv2d(3, 32) -> BN -> ReLU -> Conv2d(32, 32) -> BN -> ReLU -> MaxPool -> Dropout
-        Conv Block 2: Conv2d(32, 64) -> BN -> ReLU -> Conv2d(64, 64) -> BN -> ReLU -> MaxPool -> Dropout
-        Conv Block 3: Conv2d(64, 128) -> BN -> ReLU -> Conv2d(128, 128) -> BN -> ReLU -> MaxPool -> Dropout
+        Conv Block 1: [Conv2d(3, 32) -> BN -> ReLU] x2 -> MaxPool -> Dropout
+        Conv Block 2: [Conv2d(32, 64) -> BN -> ReLU] x2 -> MaxPool -> Dropout
+        Conv Block 3: [Conv2d(64, 128) -> BN -> ReLU] x2 -> MaxPool -> Dropout
         FC: Linear(128*4*4 -> 256) -> ReLU -> Dropout -> Linear(256 -> 10)
     """
 

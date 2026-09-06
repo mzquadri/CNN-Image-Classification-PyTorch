@@ -10,22 +10,22 @@ Includes:
 - Sample predictions grid
 """
 
-import os
 import json
+import os
 import time
-import numpy as np
+
 import matplotlib
+import numpy as np
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import seaborn as sns
 import torch
 import torch.nn as nn
+from sklearn.metrics import classification_report, confusion_matrix
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split
-from sklearn.metrics import confusion_matrix, classification_report
+from torchvision import datasets, transforms
 
 from model import CIFAR10CNN
 
@@ -111,7 +111,7 @@ def train_and_evaluate(
     batch_size: int = 128,
     lr: float = 1e-3,
     patience: int = 10,
-    device: str = None,
+    device: str | None = None,
 ):
     """Full training and evaluation pipeline."""
 
@@ -293,18 +293,21 @@ def train_and_evaluate(
     # 2. Confusion matrix
     cm = confusion_matrix(all_labels, all_preds)
     fig, ax = plt.subplots(figsize=(10, 8))
-    sns.heatmap(
-        cm,
-        annot=True,
-        fmt="d",
-        cmap="Blues",
-        ax=ax,
-        xticklabels=CLASSES,
-        yticklabels=CLASSES,
-    )
+    # Drawn with matplotlib. This was the only call needing seaborn, and it was
+    # imported at module scope, so the file could not be imported without it.
+    image = ax.imshow(cm, cmap="Blues")
+    fig.colorbar(image, ax=ax, shrink=0.82)
+    ax.set_xticks(range(len(CLASSES)), CLASSES)
+    ax.set_yticks(range(len(CLASSES)), CLASSES)
+    midpoint = cm.max() / 2.0
+    for row in range(cm.shape[0]):
+        for column in range(cm.shape[1]):
+            ax.text(column, row, f"{cm[row, column]:d}", ha="center", va="center",
+                    color="white" if cm[row, column] > midpoint else "black",
+                    fontsize=8)
     ax.set_xlabel("Predicted")
     ax.set_ylabel("Actual")
-    ax.set_title(f"Confusion Matrix — Test Accuracy: {test_acc:.2f}%")
+    ax.set_title(f"Confusion Matrix, test accuracy {test_acc:.2f}%")
     plt.xticks(rotation=45, ha="right")
     plt.yticks(rotation=0)
     fig.tight_layout()
@@ -317,7 +320,7 @@ def train_and_evaluate(
     fig, ax = plt.subplots(figsize=(12, 6))
     colors = plt.cm.tab10(np.linspace(0, 1, 10))
     bars = ax.bar(CLASSES, per_class_acc, color=colors, edgecolor="white")
-    for bar, acc in zip(bars, per_class_acc):
+    for bar, acc in zip(bars, per_class_acc, strict=False):
         ax.text(
             bar.get_x() + bar.get_width() / 2,
             bar.get_height() + 0.5,
@@ -337,9 +340,6 @@ def train_and_evaluate(
     print("Saved: 03_per_class_accuracy.png")
 
     # 4. Sample predictions
-    mean = np.array([0.4914, 0.4822, 0.4465])
-    std = np.array([0.2470, 0.2435, 0.2616])
-
     test_set_viz = datasets.CIFAR10(
         root=data_dir,
         train=False,
