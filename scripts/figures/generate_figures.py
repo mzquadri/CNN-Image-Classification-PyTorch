@@ -222,9 +222,20 @@ def figure_03_confusion(data: dict) -> None:
     ps.save(fig, FIGURES, "03_confusion")
 
 
-def figure_04_failures(data: dict) -> None:
-    """What do the mistakes look like?"""
+def figure_04_failures(data: dict) -> bool:
+    """What do the mistakes look like?
+
+    The only figure needing the images themselves. The other three read the
+    recorded results alone, which is why continuous integration can regenerate
+    them without a 170 MB download. This one says so and skips rather than
+    failing the run.
+    """
     from torchvision import datasets
+
+    if not (ROOT / "data" / "cifar-10-batches-py").is_dir():
+        print("  skipping 04_failure_examples: CIFAR-10 is not downloaded, and "
+              "this is the only figure that needs the images")
+        return False
 
     test = datasets.CIFAR10(root=str(ROOT / "data"), train=False, download=False)
     images = test.data
@@ -276,6 +287,7 @@ def figure_04_failures(data: dict) -> None:
         "larger model of the same kind is least likely to fix.",
     ], y=0.075)
     ps.save(fig, FIGURES, "04_failure_examples")
+    return True
 
 
 def main() -> int:
@@ -285,7 +297,10 @@ def main() -> int:
     figure_01_model_comparison(data)
     figure_02_per_class(data)
     figure_03_confusion(data)
-    figure_04_failures(data)
+    drawn = figure_04_failures(data)
+    if not drawn and not (FIGURES / "04_failure_examples.png").is_file():
+        raise SystemExit("  04_failure_examples.png is neither committed nor "
+                         "reproducible here; download CIFAR-10 and rerun")
     print(f"  figures in {FIGURES.relative_to(ROOT).as_posix()}")
     return 0
 
