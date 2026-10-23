@@ -27,7 +27,13 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader, random_split
 from torchvision import datasets, transforms
 
-from model import CIFAR10CNN
+try:
+    # python -m src.train, from the repository root, which is the form the README
+    # uses for every other script here.
+    from src.model import CIFAR10CNN
+except ImportError:
+    # python src/train.py, which puts src/ on sys.path instead.
+    from model import CIFAR10CNN
 
 CLASSES = [
     "airplane",

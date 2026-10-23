@@ -144,16 +144,24 @@ separates them, and several of these are hard to call from the image alone.
 
 ![CNN architecture](docs/diagrams/architecture.svg)
 
-```
-Input (3x32x32)
-Conv Block 1: [Conv3x3(3->32) -> BN -> ReLU] x2 -> MaxPool -> Dropout(0.25)
-Conv Block 2: [Conv3x3(32->64) -> BN -> ReLU] x2 -> MaxPool -> Dropout(0.25)
-Conv Block 3: [Conv3x3(64->128) -> BN -> ReLU] x2 -> MaxPool -> Dropout(0.25)
-Flatten -> FC(2048->256) -> ReLU -> Dropout(0.5) -> FC(256->10)
+Each block halves the resolution and doubles the channels, which is the trade the
+architecture exists to make: detail is given up for the capacity to say what the
+image contains.
+
+```mermaid
+flowchart LR
+    I["Input<br/>3 x 32 x 32<br/>augmented crops"]
+    C1["Conv block 1<br/>twice over: Conv 3x3 3 to 32, BatchNorm, ReLU<br/>MaxPool, Dropout 0.25<br/>out 32 x 16 x 16"]
+    C2["Conv block 2<br/>twice over: Conv 3x3 32 to 64, BatchNorm, ReLU<br/>MaxPool, Dropout 0.25<br/>out 64 x 8 x 8"]
+    C3["Conv block 3<br/>twice over: Conv 3x3 64 to 128, BatchNorm, ReLU<br/>MaxPool, Dropout 0.25<br/>out 128 x 4 x 4"]
+    F["Classifier<br/>Flatten 2048, FC 256, ReLU<br/>Dropout 0.5, FC 10<br/>out 10 logits"]
+
+    I --> C1 --> C2 --> C3 --> F
 ```
 
 815,018 trainable parameters, verified against the model definition rather than
-quoted.
+quoted: `scripts/check_repository.py` builds the module, counts them, and fails if
+the total stops matching the results file.
 
 ## Configuration
 
@@ -182,6 +190,10 @@ same budget as the network it is being compared with.
 
 ## Reproducing
 
+Python 3.12 or newer. That is a floor rather than a preference: two files here use
+f-string syntax added in 3.12, so 3.11 is a syntax error, and `pyproject.toml`
+declares it.
+
 ```bash
 pip install -r requirements.txt
 
@@ -191,19 +203,70 @@ python -m src.benchmark --track cnn          # the reference configuration
 python -m src.benchmark --track pretrained   # ImageNet weights, same budget
 python -m unittest discover -s tests
 python scripts/figures/generate_figures.py
-python scripts/check_repository.py           # README against the recorded results
+python scripts/check_repository.py           # README and diagram against the results
 ```
 
 CIFAR-10 downloads on first run. On an Intel Arc Pro 140T the custom network takes
 131.8 seconds and the pretrained one 419.7 seconds.
 
-Every number in this README is read from `results/benchmark.json`, and
-`scripts/check_repository.py` fails if the two stop agreeing.
+### The three training scripts, and which one produced what
 
-**Continuous integration does not train anything.** It lints, runs the tests,
-recomputes every recorded metric from the stored predictions and requires exact
-agreement, and regenerates the figures. Training needs a GPU and a download; the
-committed results are the record of it.
+Worth stating plainly, because the repository keeps all three and only one of them
+is behind a published number.
+
+| Script | What it does | Status |
+| --- | --- | --- |
+| `src/benchmark.py` | Seeds everything, fits all four models, writes `results/benchmark.json` | **Every number in this README comes from here** |
+| `src/train_fast.py` | The original reference run: 15,000 images, 12 epochs, wrote `results/test_results.json` | Kept as the record of the originally published 64.26% |
+| `src/train.py` | 50 epochs on all 50,000 images | **Never run.** No result here comes from it |
+
+`src/train.py` is kept so the full-dataset run can be made rather than described.
+It is the measurement this repository does not have, and the earlier claim of
+roughly 85 percent from it was removed rather than carried forward.
+
+Both training scripts run either way round, as `python -m src.train_fast` from the
+repository root or as `python src/train_fast.py`.
+
+### What the committed results buy, and what checks them
+
+Every number in this README and in the architecture diagram is re-derived from
+`results/benchmark.json` by `scripts/check_repository.py`, which fails if any of
+them stops agreeing.
+
+**Continuous integration does not train anything.** Training needs a GPU and a
+170 MB download, so the committed results are the record of it, and what CI does
+instead is refuse to let that record go stale.
+
+```mermaid
+flowchart TB
+    D["CIFAR-10 via torchvision<br/>170 MB, gitignored, never committed"]
+    B["src/benchmark.py and src/audit.py<br/>needs the dataset and a GPU<br/>run by hand"]
+    J["results/benchmark.json<br/>per-image predictions beside every metric"]
+
+    D --> B --> J
+
+    subgraph CI["Checked on every push. No GPU, no dataset, no training"]
+        direction TB
+        M["tests/test_metrics.py<br/>recomputes every stored metric from the<br/>stored predictions, requiring exact agreement"]
+        R["scripts/check_repository.py<br/>re-derives every number in the README<br/>and in the diagram, and counts the<br/>model's parameters from the module"]
+        G["generate_figures.py<br/>redraws 3 of the 4 figures"]
+    end
+
+    J --> M
+    J --> R
+    J --> G
+
+    F4["04_failure_examples.png<br/>needs the images, so CI skips it"]
+    D -.-> F4
+```
+
+Storing the per-image predictions beside the metrics is what makes this work: it
+turns a committed results file into something a machine with no GPU can audit,
+rather than a number it has to take on trust.
+
+The one gap is honest and visible above. `04_failure_examples.png` draws real
+CIFAR-10 images, so without the dataset it cannot be redrawn, and CI always skips
+it. CI regenerates three of the four figures and verifies those three.
 
 ## Limitations
 

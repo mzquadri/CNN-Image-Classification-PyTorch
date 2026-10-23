@@ -1,5 +1,19 @@
+[project]
+name = "cifar10-cnn"
+version = "0"
+# 3.12 is a real floor, not a preference. scripts/check_repository.py uses a backslash
+# escape inside an f-string and src/benchmark.py nests quotes in one, both PEP 701 and
+# both syntax errors on 3.11. Continuous integration runs 3.13, so neither surfaced
+# there; a reader on 3.11 got a syntax error with nothing declaring 3.11 unsupported.
+requires-python = ">=3.12"
+
 [tool.ruff]
 line-length = 100
+# Declared so the lint result does not depend on which ruff is installed. With no
+# target version set, ruff falls back to its own built-in default, and that default
+# moved between releases: 0.16.1, the version CI pins, stayed silent on UP017 while
+# 0.17.0 reported it, because the rule only fires for 3.11 and above.
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "UP", "B", "C4", "SIM", "RUF", "FURB"]

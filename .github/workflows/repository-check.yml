@@ -4,6 +4,12 @@ on:
   push:
   pull_request:
 
+# Read-only is all this workflow needs: it checks out the code, runs checks and
+# publishes nothing. Declared rather than inherited, per GitHub's "Security
+# hardening for GitHub Actions".
+permissions:
+  contents: read
+
 # Continuous integration does not train anything. Both networks need a GPU and a
 # 170 MB dataset download, so they are run by hand and their results committed.
 # What CI checks instead is that the recorded metrics still follow from the
@@ -13,11 +19,17 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # Nothing here trains, so the whole job is a few minutes. Without this the
+    # default is six hours, which is a long time to spend on a hung install.
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
+          # Keyed on requirements.txt, which pins every version. The CPU torch
+          # wheel is the bulk of the install, so caching it is most of the run.
+          cache: pip
 
       - name: Install the pinned dependencies
         run: |
@@ -34,5 +46,7 @@ jobs:
       - name: Tests
         run: python -m unittest discover -s tests
 
-      - name: The figures still render
+      # Three of the four. 04_failure_examples.png draws real CIFAR-10 images, so
+      # without the dataset it cannot be redrawn and the generator skips it here.
+      - name: Three of the four figures still render
         run: python scripts/figures/generate_figures.py

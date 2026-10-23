@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="940" height="420" viewBox="0 0 940 420" font-family="Segoe UI, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="440" viewBox="0 0 940 440" font-family="Segoe UI, Arial, sans-serif">
   <defs>
     <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L8,3 L0,6 Z" fill="#475569"/>
     </marker>
   </defs>
-  <rect width="940" height="420" fill="#ffffff"/>
+  <rect width="940" height="440" fill="#ffffff"/>
 
   <text x="470" y="34" text-anchor="middle" font-size="21" font-weight="600" fill="#0f172a">Custom CNN for CIFAR-10</text>
   <text x="470" y="56" text-anchor="middle" font-size="13" fill="#64748b">Three convolutional blocks with batch normalization, 815,018 trainable parameters</text>
@@ -45,7 +45,7 @@
   <text x="838" y="134" text-anchor="middle" font-size="10.5" fill="#1d4ed8">Flatten 2048</text>
   <text x="838" y="150" text-anchor="middle" font-size="10.5" fill="#1d4ed8">FC 256 + ReLU</text>
   <text x="838" y="166" text-anchor="middle" font-size="10.5" fill="#1d4ed8">Dropout 0.5 &#8594; FC 10</text>
-  <text x="838" y="200" text-anchor="middle" font-size="10" font-weight="600" fill="#3b82f6">10 classes</text>
+  <text x="838" y="200" text-anchor="middle" font-size="10" font-weight="600" fill="#2563eb">10 classes</text>
 
   <!-- Arrows -->
   <line x1="136" y1="160" x2="174" y2="160" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
@@ -60,18 +60,21 @@
   <text x="560" y="285" font-size="11.5" font-weight="600" fill="#334155">Reference run:</text>
   <text x="560" y="303" font-size="11" fill="#475569">15K samples &#183; ~17 min on MX330 laptop GPU</text>
 
-  <!-- Results strip -->
-  <rect x="24" y="336" width="892" height="60" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <!-- Results strip. Every badge here is the original run, and says so: the README
+       opens with the seeded reproduction instead, and two unlabelled accuracies a
+       paragraph apart read as a contradiction rather than as two runs. -->
+  <rect x="24" y="336" width="892" height="80" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="48" y="357" font-size="11" fill="#475569">Original run, from results/test_results.json. With every generator seeded, the same configuration reproduces to 63.82%.</text>
 
-  <rect x="48" y="350" width="180" height="32" rx="16" fill="#f0fdf4"/>
-  <text x="138" y="371" text-anchor="middle" font-size="12" font-weight="600" fill="#15803d">Test accuracy 64.26%</text>
+  <rect x="48" y="366" width="180" height="32" rx="16" fill="#f0fdf4"/>
+  <text x="138" y="387" text-anchor="middle" font-size="12" font-weight="600" fill="#15803d">Test accuracy 64.26%</text>
 
-  <rect x="244" y="350" width="196" height="32" rx="16" fill="#eff6ff"/>
-  <text x="342" y="371" text-anchor="middle" font-size="12" fill="#1d4ed8">Best: automobile 82.0%</text>
+  <rect x="244" y="366" width="196" height="32" rx="16" fill="#eff6ff"/>
+  <text x="342" y="387" text-anchor="middle" font-size="12" fill="#1d4ed8">Best: automobile 82.0%</text>
 
-  <rect x="456" y="350" width="172" height="32" rx="16" fill="#fff7ed"/>
-  <text x="542" y="371" text-anchor="middle" font-size="12" fill="#c2410c">Hardest: cat 33.5%</text>
+  <rect x="456" y="366" width="172" height="32" rx="16" fill="#fff7ed"/>
+  <text x="542" y="387" text-anchor="middle" font-size="12" fill="#c2410c">Hardest: cat 33.5%</text>
 
-  <rect x="644" y="350" width="248" height="32" rx="16" fill="#fdf2f8"/>
-  <text x="768" y="371" text-anchor="middle" font-size="12" fill="#be185d">Full-data 50-epoch script included</text>
+  <rect x="644" y="366" width="248" height="32" rx="16" fill="#fdf2f8"/>
+  <text x="768" y="387" text-anchor="middle" font-size="12" fill="#be185d">Seeded reproduction 63.82%</text>
 </svg>

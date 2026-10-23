@@ -25,7 +25,7 @@ import argparse
 import json
 import platform
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -341,7 +341,7 @@ def main() -> int:
           f"test {len(test):,}")
 
     payload["environment"] = {
-        "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generated_utc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "python": platform.python_version(),
         "torch": torch.__version__,
         "device": str(dev),
