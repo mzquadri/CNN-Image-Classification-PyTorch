@@ -46,5 +46,7 @@ jobs:
       - name: Tests
         run: python -m unittest discover -s tests
 
-      - name: The figures still render
+      # Three of the four. 04_failure_examples.png draws real CIFAR-10 images, so
+      # without the dataset it cannot be redrawn and the generator skips it here.
+      - name: Three of the four figures still render
         run: python scripts/figures/generate_figures.py
