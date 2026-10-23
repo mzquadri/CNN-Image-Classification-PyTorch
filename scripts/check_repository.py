@@ -23,6 +23,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results" / "benchmark.json"
+REFERENCE = ROOT / "results" / "test_results.json"
+DIAGRAM = ROOT / "docs" / "diagrams" / "architecture.svg"
 
 REQUIRED_FILES = (
     "README.md",
@@ -184,6 +186,38 @@ def claims(data: dict) -> list[tuple[str, str]]:
     return out
 
 
+def diagram_claims(data: dict, reference: dict) -> list[tuple[str, str]]:
+    """The diagram quotes numbers too, and nothing used to check them.
+
+    `docs/diagrams/architecture.svg` is hand-written, so its figures are a second
+    copy of values that live in the results files. Until this check existed, the
+    only assertion about it was that the file is present. A second copy nobody
+    compares is how a diagram comes to contradict the README beside it.
+
+    It is also the one place in the repository where both runs appear together, so
+    each badge has to say which run it is describing.
+    """
+    cnn = data["models"]["custom_cnn"]
+    config = data["configuration"]
+    per_class = reference["per_class_accuracy"]
+    best = max(per_class, key=lambda cls: per_class[cls])
+    worst = min(per_class, key=lambda cls: per_class[cls])
+    reproduced = cnn["test"]["top1_accuracy"] * 100
+
+    return [
+        (f"{cnn['parameters']:,} trainable parameters", "the parameter count in its subtitle"),
+        (f"Test accuracy {reference['test_accuracy']:.2f}%", "the original run's accuracy badge"),
+        (f"Seeded reproduction {reproduced:.2f}%", "the reproduction badge"),
+        (f"reproduces to {reproduced:.2f}%", "the reproduced figure in the strip's label"),
+        (f"Best: {best} {per_class[best]:.1f}%", "the best class and its accuracy"),
+        (f"Hardest: {worst} {per_class[worst]:.1f}%", "the hardest class and its accuracy"),
+        (f"{config['epochs']} epochs", "the epoch count"),
+        (f"batch {config['batch_size']}", "the batch size"),
+        (f"OneCycleLR max {config['learning_rate']}", "the schedule and its peak learning rate"),
+        ("results/test_results.json", "which file the badges came from"),
+    ]
+
+
 def main() -> int:
     missing = [path for path in REQUIRED_FILES if not (ROOT / path).is_file()]
     if missing:
@@ -218,14 +252,26 @@ def main() -> int:
     print(f"  {len(checks) - len(failures)} of {len(checks)} recorded numbers "
           f"found in the README")
 
+    reference = json.loads(REFERENCE.read_text(encoding="utf-8"))
+    svg = re.sub(r"\s+", " ", DIAGRAM.read_text(encoding="utf-8"))
+    diagram = diagram_claims(data, reference)
+    diagram_failures = [
+        f"  the diagram does not state {description}: expected "
+        f"{re.sub(r'\s+', ' ', expected).strip()!r}"
+        for expected, description in diagram
+        if re.sub(r"\s+", " ", expected) not in svg
+    ]
+    print(f"  {len(diagram) - len(diagram_failures)} of {len(diagram)} recorded numbers "
+          f"found in the diagram")
+    failures += diagram_failures
+
     if failures:
         print()
         for failure in failures:
             print(failure)
-        raise SystemExit(f"\n  {len(failures)} claims in the README no longer match "
-                         f"results/benchmark.json")
+        raise SystemExit(f"\n  {len(failures)} claims no longer match the results files")
 
-    print("  README and results/benchmark.json agree")
+    print("  README, diagram and the results files agree")
     return 0
 
 

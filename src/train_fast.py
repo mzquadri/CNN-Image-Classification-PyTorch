@@ -1,7 +1,16 @@
 """
-Fast training script for CNN on CIFAR-10.
-Optimized for systems with modest GPU (e.g., MX330).
-Uses full CIFAR-10 dataset but trains for fewer epochs.
+Fast training script for CNN on CIFAR-10. This is the script that produced the
+originally published result in results/test_results.json.
+
+It draws a seeded random subset of 15,000 of the 50,000 CIFAR-10 training images
+(see subset_size below), splits it 90/10, trains for 12 epochs and scores on the
+full published 10,000-image test set. Sized for a modest GPU such as an MX330.
+
+src/train.py is the one that uses all 50,000 images, over 50 epochs. It has never
+been run, so no result in this repository comes from it.
+
+For the fully seeded harness that reproduced this run and added the comparison
+arms either side of it, see src/benchmark.py.
 """
 
 import json
@@ -22,7 +31,13 @@ from torch.optim.lr_scheduler import OneCycleLR
 from torch.utils.data import DataLoader, random_split
 from torchvision import datasets, transforms
 
-from model import CIFAR10CNN
+try:
+    # python -m src.train_fast, from the repository root, which is the form the
+    # README uses for every other script here.
+    from src.model import CIFAR10CNN
+except ImportError:
+    # python src/train_fast.py, which puts src/ on sys.path instead.
+    from model import CIFAR10CNN
 
 CLASSES = [
     "airplane",
